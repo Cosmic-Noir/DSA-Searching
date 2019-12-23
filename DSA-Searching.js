@@ -157,7 +157,7 @@ const linearSearch = (array, value) => {
 
 let sortedArray = myArray.sort();
 
-console.log(binarySearch(sortedArray, 78, 0, 92));
+// console.log(binarySearch(sortedArray, 78, 0, 92));
 // Binary took 6 searches.
 
 // Find a Book - Dewey Decimal Index Categorizes books into 10 large topics, then divided into sub divisions. Then subdivisions are divided into classes.
@@ -211,4 +211,206 @@ const library = [
   "796.8092 Chuck Norris: The Official Chuck Norris Fact Book"
 ];
 
-console.log(findBook(library));
+// console.log(findBook(library));
+
+// Searching in a BST
+
+// Implement Different tree traversals
+
+class BinarySearchTree {
+  constructor(key = null, value = null, parent = null) {
+    this.key = key;
+    this.value = value;
+    this.parent = parent;
+    this.left = null;
+    this.right = null;
+  }
+
+  insert(key, value) {
+    // if tree is empty then this key being inserted is the root node of the tree
+    if (this.key == null) {
+      this.key = key;
+      this.value = value;
+    }
+
+    // If tree already exists, then start at the root and compare to key being inserted. If key is less than node's value, then move left, and vice versa.
+    else if (key < this.key) {
+      // If existing node does not hav e aleft child, then insert node as left child of that node, passing 'this' as the parent.
+      if (this.left == null) {
+        this.left = new BinarySearchTree(key, value, this);
+      }
+      // If node has has a left child, recursively call the insert method
+      else {
+        this.left.insert(key, value);
+      }
+    } else {
+      // If key is > than node's key, then do right side
+      if (this.right == null) {
+        this.right = new BinarySearchTree(key, value, this);
+      } else {
+        this.right.insert(key, value);
+      }
+    }
+  }
+
+  // Retrieval follows the same pattern as insertion, checking key against the key stored in the node and recursively flowing left or right. Average case would be O(n), best case would be O(1) if item was at the root
+  find(key) {
+    // if Item is found at the root, then return that value
+    if (this.key == key) {
+      return this.value;
+    }
+    // if item is less than root, go left, if left child exists, then recursively check its left and/or right child
+    else if (key < this.key && this.left) {
+      return this.left.find(key);
+    }
+    // same, but right sided
+    else if (key > this.key && this.right) {
+      return this.right.find(key);
+    }
+    // Item not found
+    else {
+      throw new Error("Key Error");
+    }
+  }
+
+  // Removal - Three scenarios when you find the item you want to remove: item has no children, 1 child, or 2 children.
+  // If no children, simply detach from parent.
+  // If one child, then you must make the parent of the node being removed the parent of the child of the node being removed, then remove the node.
+  // Node with two children - You must find the MINIMUM value in the RIGHT MOST subtree. Go ALL the way down the right most tree to the left hand side. , then we replace the node being removed with that minimum value.
+  remove(key) {
+    if (this.key == key) {
+      if (this.left && this.right) {
+        const successor = this.right._findMin();
+        this.key = succesor.key;
+        this.value = succesor.value;
+        successor.remove(successor.key);
+      }
+      // If node only has a left child, then replace the node with its left child
+      else if (this.left) {
+        this._replaceWith(this.left);
+      } else if (this.right) {
+        this._replaceWith(this.right);
+      }
+      // If node has no children, then simply remove it and any references to it
+      else {
+        this._replaceWith(null);
+      }
+    } else if (key < this.key && this.left) {
+      this.left.remove(key);
+    } else if (key > this.key && this.right) {
+      this.right.remove(key);
+    } else {
+      throw new Error("Key error");
+    }
+  }
+
+  // _replaceWith - used to find the node to replace that has children
+  _replaceWith(node) {
+    if (this.parent) {
+      if (this == this.parent.left) {
+        this.parent.left = node;
+      } else if (this == this.parent.right) {
+        this.parent.right = node;
+      }
+
+      if (node) {
+        node.parent = this.parent;
+      }
+    } else {
+      if (node) {
+        this.key = node.key;
+        this.value = node.value;
+        this.left = node.left;
+        this.right = node.right;
+      } else {
+        this.key = null;
+        this.value = null;
+        this.left = null;
+        this.right = null;
+      }
+    }
+  }
+
+  _findMin() {
+    if (!this.left) {
+      return this;
+    }
+    return this.left._findMin();
+  }
+
+  dfs(values = []) {
+    if (this.left) {
+      values = this.left.dfs(values);
+    }
+    values.push(this.value);
+
+    if (this.right) {
+      values = this.right.dfs(values);
+    }
+    return values;
+  }
+}
+
+let newTree = new BinarySearchTree();
+
+newTree.insert(25);
+newTree.insert(15);
+newTree.insert(50);
+newTree.insert(10);
+newTree.insert(24);
+newTree.insert(35);
+newTree.insert(70);
+newTree.insert(4);
+newTree.insert(12);
+newTree.insert(18);
+newTree.insert(31);
+newTree.insert(44);
+newTree.insert(66);
+newTree.insert(90);
+newTree.insert(20);
+
+// console.log(newTree);
+
+// console.log(newTree.dsf);
+
+// Find next commanding Officer - Should be in order from left to right...
+
+// bfs(tree, values = []) {
+//         const queue = new Queue();
+//         const node = tree.root;
+//         queue.enqueue(node);
+//         while (queue.length) {
+//             const node = queue.dequeue(); //remove from the queue
+//             values.push(node.value); // add that value from the queue to an array
+
+//             if (node.left) {
+//                 queue.enqueue(node.left); //add left child to the queue
+//             }
+
+//             if (node.right) {
+//                 queue.enqueue(node.right); // add right child to the queue
+//             }
+//         }
+
+//         return values;
+//     }
+
+// }
+
+// Max Profit
+
+const profit = array => {
+  let profit = 0;
+  for (let i = 0; i < array.length; i++) {
+    if (i % 2 === 1) {
+      profit -= array[i];
+    } else {
+      profit += array[i];
+    }
+  }
+  return profit;
+};
+
+const prices = [128, 97, 121, 123, 98, 97, 105];
+
+console.log(profit(prices));
